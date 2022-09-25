@@ -10,6 +10,8 @@ class Whats():
         self.attach="images/attach.png"
         self.document="images/document.png"
         self.image="images/image.png"
+        self.home="images/home.png"
+        self.search="images/search.png"
     
     def format_no(self,no:str):
         no=no.replace(" ","")
@@ -21,28 +23,50 @@ class Whats():
             raise "Invalid no"
     
     
-    def _click_image(self,*logo:str):
+    def _click_image(self,*logo:list):
         for i in logo:
             pg.click(pg.locateCenterOnScreen(logo))
             pg.sleep(0.5)
+            
+
+    def _search_for_document(self,location:str):
+        self._click_image(self.home)
+        path_lis=location.split(os.path.sep)[3:]
+        for i in path_lis:
+            self._click_image(self.search)
+            pg.typewrite(i)
+            pg.sleep(0.5)
+            pg.press("down")
+            pg.sleep(0.5)
+            pg.press("return")
 
 
-    def _click_text(self,*texts):
-        pass
-
-    def send_msg(self,no:str,msg:str,wait_time:int=20,attach_img:bool=False,attach_document:bool=False):
+    def send_msg(self,no:str,msg:str,wait_time:int=30):
         no=self.format_no(no)
-        self.url.format(no,quote(msg))
-        webbrowser.open(self.url)
+        
+        open(self.url.format(no,quote(msg)))
+
         pg.sleep(wait_time)
         pg.press("return")
-        if attach_document:
-            pass
-        if attach_img:
-            pass
+
         pg.sleep(5)
         pg.hotkey("ctrl","w")
     
-    def send_image(self,img:str):
-        if os.path.exists(img):
-            self._click_image(self.attach,self.image)
+    def send_doc(self,no:str,doc:str,wait_time:int=30,is_img:bool=False):
+        doc=os.path.abspath(doc)
+        if not os.path.exists(doc):
+            return
+        open(self.url.format(self.format_no(no)))
+        self._click_image(self.attach)
+        pg.sleep(wait_time)
+        if is_img:
+            self._click_image(self.image)
+        else :
+            self._click_image(self.document)
+        pg.sleep(1)
+
+        self._search_for_document(doc)
+        pg.sleep(5)
+        
+        pg.press("return")
+        
