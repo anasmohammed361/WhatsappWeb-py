@@ -1,6 +1,5 @@
 from webbrowser import open
 from urllib.parse import quote
-import webbrowser
 import pyautogui as pg
 import os
 
@@ -13,18 +12,17 @@ class Whats():
         self.home="images/home.png"
         self.search="images/search.png"
     
-    def format_no(self,no:str):
+    def _format_no(self,no:str):
         no=no.replace(" ","")
         if(len(no)==10):
             return f"+91{no}"
         elif (len(no)>10):
-            return no[:12] if no.startswith("+") else  f"+{no[:12]}"
+            return no[:13] if no.startswith("+") else  f"+{no[:12]}"
         else:
             raise "Invalid no"
     
     
-    def _click_image(self,*logo:list):
-        for i in logo:
+    def _click_image(self,logo):
             pg.click(pg.locateCenterOnScreen(logo))
             pg.sleep(0.5)
             
@@ -42,7 +40,7 @@ class Whats():
 
 
     def send_msg(self,no:str,msg:str,wait_time:int=30):
-        no=self.format_no(no)
+        no=self._format_no(no)
         
         open(self.url.format(no,quote(msg)))
 
@@ -54,19 +52,25 @@ class Whats():
     
     def send_doc(self,no:str,doc:str,wait_time:int=30,is_img:bool=False):
         doc=os.path.abspath(doc)
+
         if not os.path.exists(doc):
+            print("Sorry file not found. Please provide a valid path")
             return
-        open(self.url.format(self.format_no(no)))
-        self._click_image(self.attach)
+
+        open(self.url.format(self._format_no(no)," "))
         pg.sleep(wait_time)
+
+        self._click_image(self.attach)
+        pg.sleep(3)
+
         if is_img:
             self._click_image(self.image)
         else :
             self._click_image(self.document)
-        pg.sleep(1)
+
+        pg.sleep(3)
 
         self._search_for_document(doc)
         pg.sleep(5)
         
         pg.press("return")
-        
